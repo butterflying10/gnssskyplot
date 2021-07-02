@@ -122,7 +122,6 @@ def readqualityfile(filename):
     ZE = []
     SNR = []
     Info = []
-
     epochList = []
     with open(filename, 'r') as f:
         lists = f.readlines()
@@ -176,17 +175,22 @@ def skyplot(gnss):
 
     # colors = [_plt.cm.tab10(i / float(len(SVList) - 1)) for i in range(len(SVList))]
     #
-    colors = ["red", "darkorange", "orange", "yellow", "forestgreen", "lime", "aqua", "dodgerblue", "midnightblue", "b",
-              "darkviolet", "fuchsia", "hotpink"]
+    colors = ["red", "darkorange", "orange", "gold", "forestgreen", "lime", "aqua", "dodgerblue", "midnightblue", "b",
+              "darkviolet", "fuchsia", "hotpink","violet","turquoise","m","cornflowerblue","slateblue","salmon","tomato",
+              "chartreuse","fuchsia","orchid","c","coral"]
     #cm = _plt.cm.get_cmap('prism')
     i = 0
+    print(len(SVList))
     for sv in SVList:
         try:
             if str(sv[0]) == 'G':
-                skyplot = ax.scatter(gnss.loc[sv].svx, gnss.loc[sv].Zenith, s=4.2, color=colors[i], alpha=0.25,
+                skyplot = ax.scatter(gnss.loc[sv].svx, gnss.loc[sv].Zenith, s=4.2,
+                                     color=colors[i],
+                                     alpha=0.25,
                                      linewidths=1, vmax=1)
-                ax.text(gnss.loc[sv].svx[int(len(gnss.loc[sv].svx) / 12)],
-                        gnss.loc[sv].Zenith[int(len(gnss.loc[sv].Zenith) / 12)], sv, fontsize=12, color=colors[i],
+                ax.text(gnss.loc[sv].svx[int(len(gnss.loc[sv].svx) / 20)],
+                        gnss.loc[sv].Zenith[int(len(gnss.loc[sv].Zenith) / 20)], sv, fontsize=15,
+                        color=colors[i],
                         weight="bold")
                 i = i + 1
         except:
@@ -196,20 +200,84 @@ def skyplot(gnss):
     ax.set_theta_direction(-1)
     ax.set_rmax(90.0)
     ax.set_yticks(range(0, 90, 15))
-    ylabels = ["90°", "75°", "60°", "45°", "30°", "15°"]
+    ylabels = [" ", "75°", "60°", "45°", "30°", "15°"]
     # map(str, range(90, 0, -20))
     ax.set_yticklabels(ylabels)
     _plt.show()
     _plt.title(figName)
     _plt.rcParams['savefig.dpi'] = 500  # 图片像素
     _plt.rcParams['figure.dpi'] = 500  # 分辨率
-    fig.savefig("SkyplotC_sea.png", transparent=True)
+    # fig.savefig("SkyplotC_sea.png", transparent=True)
+def skyplot_all(gnss):
+    SVList = gnss.index.get_level_values('SV').unique()
+    for sv in SVList:
+        try:
+            if sv[0] not in {'G', 'R', 'C', 'E'} or sv[1:].isdigit() == False or len(sv) != 3 or sv is None:
+                raise Warning(
+                    "Invalid format: Please enter satellite(s) that you want to plot proper format. Exp. SVlist= ['G01', 'G02', 'G11',....] Program Stopped")
+            elif sv not in SVList:
+                # SVList.remove(sv)
+                print('{} satellite not in sat file'.format(sv))
+        except:
+            # SVList.remove(sv)
+            print(sv)
+    if len(SVList) == 0:
+        raise Warning("Satellite(s) that you have entered not ")
+    fig = _plt.figure('Skyplot')
+    figName = 'Skyplot'
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
 
+    # colors = [_plt.cm.tab10(i / float(len(SVList) - 1)) for i in range(len(SVList))]
+    #
+    colors = ["red", "darkorange", "orange", "gold", "forestgreen", "lime", "aqua", "dodgerblue", "midnightblue", "b",
+              "darkviolet", "fuchsia", "hotpink","violet","turquoise","m","cornflowerblue","slateblue","salmon","tomato",
+              "chartreuse","fuchsia","orchid","c","coral"]
+    #cm = _plt.cm.get_cmap('prism')
+    i = 0
+    print(len(SVList))
+    for sv in SVList:
+        try:
+            if str(sv[0]) == 'E':
+                skyplot = ax.scatter(gnss.loc[sv].svx, gnss.loc[sv].Zenith, s=4.2,
+                                     color='r',
+                                     alpha=0.25,
+                                     linewidths=1, vmax=1)
+                ax.text(gnss.loc[sv].svx[int(len(gnss.loc[sv].svx) / 20)],
+                        gnss.loc[sv].Zenith[int(len(gnss.loc[sv].Zenith) / 20)], sv, fontsize=15,
+                        color='r',
+                        weight="bold")
+                i = i + 1
+            if str(sv[0]) == 'G':
+                skyplot = ax.scatter(gnss.loc[sv].svx, gnss.loc[sv].Zenith, s=4.2,
+                                     color='b',
+                                     alpha=0.25,
+                                     linewidths=1, vmax=1)
+                ax.text(gnss.loc[sv].svx[int(len(gnss.loc[sv].svx) / 20)],
+                        gnss.loc[sv].Zenith[int(len(gnss.loc[sv].Zenith) / 20)], sv, fontsize=15,
+                        color='b',
+                        weight="bold")
+                i = i + 1
+
+        except:
+            print("error in " + str(sv))
+    # Axes properties
+    ax.set_theta_zero_location('N')
+    ax.set_theta_direction(-1)
+    ax.set_rmax(90.0)
+    ax.set_yticks(range(0, 90, 15))
+    ylabels = [" ", "75°", "60°", "45°", "30°", "15°"]
+    # map(str, range(90, 0, -20))
+    ax.set_yticklabels(ylabels)
+    _plt.show()
+    _plt.title(figName)
+    _plt.rcParams['savefig.dpi'] = 500  # 图片像素
+    _plt.rcParams['figure.dpi'] = 500  # 分辨率
+    # fig.savefig("SkyplotC_sea.png", transparent=True)
 
 def getAverageCN0(gnss):
     SVList = gnss.index.get_level_values('SV').unique()
     Epochlist = gnss.index.get_level_values('Epoch').unique()
-    fo = open("AverageCN0MI82.txt", mode='w+')
+    fo = open("AverageCN0MI81_L1L5.txt", mode='w+')
     for sv in SVList:
         # sv = 'G04'
         el_list = gnss.loc[sv].Elevation
@@ -219,8 +287,10 @@ def getAverageCN0(gnss):
             el = gnss.loc[sv][round(gnss.loc[sv].Elevation) == i]
             try:
                 snr_avg = sum(el.SNR) / len(el.SNR)
+
+                snrL5_avg=sum(el.SNRL5)/ len(el.SNRL5)
                 fo.write(sv + "  " + str(i) + "  " + str(snr_avg) + "\n")
-                print(sv + " average CN0 in ELevation " + str(i) + '° is ' + str(snr_avg))
+                print(sv + "L5 average CN0 in ELevation " + str(i) + '° is ' + str(snrL5_avg))
             except:
                 continue
     fo.close()
@@ -276,7 +346,7 @@ def getGNSSDataframe():
     # print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
     gnss = readqualityfile("sea_MI81_quality.txt")
-    # skyplot(gnss)
+    skyplot(gnss)
     #getAverageCN0(gnss)
     print("finish import gnss Dataframe")
 
@@ -321,7 +391,7 @@ def plotEL_CN0_PRN(prn):
 
 
 def plot_PRNNUMBER():
-    gnss = readqualityfile("sea_MI81_quality.txt")
+    gnss = readqualityfile("sea_Trimble_quality.txt")
     gnss['Time'] = gnss['epoch'].dt.hour * 60 * 60 + gnss['epoch'].dt.minute * 60 + gnss['epoch'].dt.second
     print("finish import gnss Dataframe")
 
@@ -347,19 +417,21 @@ def plot_PRNNUMBER():
     prnnumberdata = _pd.DataFrame(Info, index=time, columns=header)
 
     ##############plot prn number ###############
-    fig,ax = _plt.subplots(figsize=(7,3.5))  # 创建一个figure
+    fig,ax = _plt.subplots(figsize=(6,3))  # 创建一个figure
     ax.set_yticks(_np.arange(0, 17, 2))  # 设置左边纵坐标刻度
-    ax.set_ylabel('Number of satellites', fontsize=10)  # 设置左边纵坐标标签
+    ax.set_ylabel('Number of satellites', fontsize=14)  # 设置左边纵坐标标签
+    #ax.set_xlabel('Number of epoch with 1s sample interval', fontsize=14)  # 设置左边纵坐标标签
     _plt.ylim((0, 16))
-    ax.tick_params(axis='x',labelsize=8)
-    ax.set_xticks(_np.arange(0,14500,1200))
+    ax.tick_params(axis='x',labelsize=11)
+    ax.tick_params(axis='y', labelsize=12)
+    ax.set_xticks(_np.arange(0,14500,1800))
     ax.grid(ls='--')
     _plt.xlim((0, 14400))
 
-    ax.plot(time, prnnumberdata['Gnum'], '--o',c='steelblue', linewidth=0.3,markersize=1.0, label='GPS')
-    ax.plot(time, prnnumberdata['Rnum'], '--o',c='greenyellow', linewidth=0.3,markersize=1.0, label='GLONASS')
-    ax.plot(time, prnnumberdata['Cnum'], '--o', c='darkorange', linewidth=0.3, markersize=1.2, label='BDS')
-    ax.plot(time, prnnumberdata['Enum'],'--o', c='dimgrey', linewidth=0.3,markersize=1.0, label='Galileo')
+    ax.plot(time, prnnumberdata['Gnum'], '--o',c='steelblue', linewidth=0.3,markersize=2.0, label='GPS')
+    ax.plot(time, prnnumberdata['Rnum'], '--o',c='greenyellow', linewidth=0.3,markersize=2.0, label='GLONASS')
+    ax.plot(time, prnnumberdata['Cnum'], '--o', c='darkorange', linewidth=0.3, markersize=2.0, label='BDS')
+    ax.plot(time, prnnumberdata['Enum'],'--o', c='dimgrey', linewidth=0.3,markersize=2.0, label='Galileo')
     _plt.legend(loc='upper center', ncol=4,fontsize=10,frameon=False)#去掉图例边框
     _plt.show()
 
@@ -367,9 +439,9 @@ def plot_PRNNUMBER():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     #print_hi('PyCharm')
-    #getGNSSDataframe()
+    getGNSSDataframe()
     #plotAverageCN0_EL("AverageCN0MI82.txt")
     #plotEL_CN0_PRN('G01')
     # plotEL_CN0_PRN('C13')
     # plotEL_CN0_PRN('C26')
-    plot_PRNNUMBER()
+    #plot_PRNNUMBER()
